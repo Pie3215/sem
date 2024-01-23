@@ -1,1 +1,1 @@
-test
+![workflow](https://github.com/Pie3215/sem/actions/workflows/main.yml/badge.svg)
