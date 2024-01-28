@@ -68,17 +68,39 @@ public class App
             }
         }
     }
-    public static void main(String[] args)
-    {
-        // Create new Application
-        App a = new App();
-
-        // Connect to database
-        a.connect();
-
-        // Disconnect from database
-        a.disconnect();
-    }
+//    public Employee getEmployee(int ID)
+//    {
+//        try
+//        {
+//            // Create an SQL statement
+//            Statement stmt = con.createStatement();
+//            // Create string for SQL statement
+//            String strSelect =
+//                    "SELECT emp_no, first_name, last_name "
+//                            + "FROM employees "
+//                            + "WHERE emp_no = " + ID;
+//            // Execute SQL statement
+//            ResultSet rset = stmt.executeQuery(strSelect);
+//            // Return new employee if valid.
+//            // Check one is returned
+//            if (rset.next())
+//            {
+//                Employee emp = new Employee();
+//                emp.emp_no = rset.getInt("emp_no");
+//                emp.first_name = rset.getString("first_name");
+//                emp.last_name = rset.getString("last_name");
+//                return emp;
+//            }
+//            else
+//                return null;
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//            System.out.println("Failed to get employee details");
+//            return null;
+//        }
+//    }
     public Employee getEmployee(int ID)
     {
         try
@@ -87,9 +109,17 @@ public class App
             Statement stmt = con.createStatement();
             // Create string for SQL statement
             String strSelect =
-                    "SELECT emp_no, first_name, last_name "
-                            + "FROM employees "
-                            + "WHERE emp_no = " + ID;
+                    "SELECT employees.emp_no, salaries.salary, dept_emp.dept_no, departments.dept_name,\n" +
+                            "       dept_manager.emp_no AS dept_manager_emp_no,\n" +
+                            "       emp_manager.first_name AS manager_first_name,\n" +
+                            "       emp_manager.last_name AS manager_last_name\n" +
+                            "FROM employees\n" +
+                            "JOIN salaries ON salaries.emp_no = employees.emp_no\n" +
+                            "JOIN dept_emp ON dept_emp.emp_no = employees.emp_no\n" +
+                            "JOIN departments ON departments.dept_no = dept_emp.dept_no\n" +
+                            "JOIN dept_manager ON dept_manager.dept_no = departments.dept_no\n" +
+                            "JOIN employees AS emp_manager ON emp_manager.emp_no = dept_manager.emp_no\n" +
+                            "WHERE employees.emp_no =" + ID + " AND salaries.to_date = '9999-01-01'";
             // Execute SQL statement
             ResultSet rset = stmt.executeQuery(strSelect);
             // Return new employee if valid.
@@ -98,8 +128,11 @@ public class App
             {
                 Employee emp = new Employee();
                 emp.emp_no = rset.getInt("emp_no");
-                emp.first_name = rset.getString("first_name");
-                emp.last_name = rset.getString("last_name");
+                emp.first_name = rset.getString("manager_first_name");
+                emp.last_name = rset.getString("manager_last_name");
+                emp.salary = rset.getInt("salary");
+                emp.dept_no = rset.getString("dept_no");
+                emp.dept_name = rset.getString("dept_name");
                 return emp;
             }
             else
@@ -111,5 +144,33 @@ public class App
             System.out.println("Failed to get employee details");
             return null;
         }
+    }
+    public void displayEmployee(Employee emp)
+    {
+        if (emp != null)
+        {
+            System.out.println(
+                    emp.emp_no + " "
+                            + "Manager: "+ emp.first_name + " "
+                            + emp.last_name + "\n"
+                            + "Emp Salary:" + emp.salary + "\n"
+                            + "Department Name: " + emp.dept_name + "\n"
+                            + "Department Num: " + emp.dept_no);
+        }
+    }
+    public static void main(String[] args)
+    {
+        // Create new Application
+        App a = new App();
+
+        // Connect to database
+        a.connect();
+        // Get Employee
+        Employee emp = a.getEmployee(255530);
+        // Display results
+        a.displayEmployee(emp);
+
+        // Disconnect from database
+        a.disconnect();
     }
 }
