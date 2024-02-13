@@ -59,6 +59,8 @@ jobs:
           verbose: true # optional (default = false)
   build:
     name: Build Run in Docker and Deploy Release
+    permissions:
+      contents: read
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
